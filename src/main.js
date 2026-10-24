@@ -72,12 +72,21 @@ for (const dialog of document.querySelectorAll('dialog')) {
   dialog.addEventListener('close',()=>lastFocus?.focus());
 }
 function info(title,body) { $('#info-content').innerHTML=`<div class="eyebrow">HSINCHU CITY GUIDE</div><h2 id="info-title">${title}</h2>${body}`; openDialog($('#info')); }
-$('#help').onclick=()=>info('從一座島，認識一件事。','<p>點選島上的名牌，或右側主題清單，展開施政紀錄；再點選細項閱讀完整原文。</p><ol><li>拖曳畫面旋轉城市，滾輪或雙指縮放。</li><li>使用搜尋與狀態篩選，找到關心的項目。</li><li>切換名牌、鳥瞰、動畫暫停及日照。</li></ol><p>所有文字內容均可從清單以鍵盤操作。城市位置及日照僅為視覺示意。</p>');
+$('#help').onclick=()=>info('從一座島，認識一件事。','<p>點選島上的名牌，或右側主題清單，展開施政紀錄；再點選細項閱讀完整原文。</p><ol><li>拖曳畫面旋轉城市，滾輪或雙指縮放。</li><li>使用搜尋與狀態篩選，找到關心的項目。</li><li>切換名牌、鳥瞰、動畫暫停、日照及示意天氣。</li></ol><p>所有文字內容均可從清單以鍵盤操作。城市位置及日照僅為視覺示意。</p>');
 $('#sources').onclick=()=>info('資料來源與閱讀說明','<p>本站依使用者提供的「高虹安任內施政成果分類整理」（施政成果整理.md）製作，其中推動中項目進度截至 <b>2026 年 10 月 23 日</b>，其餘保留原文日期。</p><p>共 12 類、90 項。第 1–82 項標為「資料所列成果」，不代表每個子項均已完成；第 83–90 項為「推動中／尚未實施」。空白第 91 項未收錄。</p><p>棒球場賽事（第 3、84 項）、國中乳品補助（第 22、86 項）的敘述有待核對，詳細頁保留提醒。</p><p>原文未附逐項來源連結，本版尚未逐項完成外部查證。模型不是實際地圖，亦不表示工程位置或政策因果關係。</p>');
 function toggle(id,callback) { $(id).onclick=()=>{const next=$(id).getAttribute('aria-pressed')!=='true';$(id).setAttribute('aria-pressed',String(next));callback(next);}; }
 toggle('#labels',value=>scene?.setLabels(value));
 toggle('#topview',value=>scene?.setTopView(value));
 toggle('#pause',value=>{scene?.setPaused(value);$('#pause').innerHTML=value?'<span>▷</span>播放':'<span>Ⅱ</span>暫停';});
+const weatherModes = [['changing', '晴時多雲'], ['sunny', '晴天'], ['overcast', '陰天']];
+let weatherIndex = 0;
+$('#weather').onclick = () => {
+  weatherIndex = (weatherIndex + 1) % weatherModes.length;
+  const [mode, label] = weatherModes[weatherIndex];
+  scene?.setWeather(mode);
+  $('#weather').textContent = `☁ ${label}`;
+  $('#weather').setAttribute('aria-label', `切換示意天氣，目前${label}`);
+};
 $('#daylight').oninput=event=>{const hour=Number(event.target.value);$('#time-label').textContent=`${String(hour).padStart(2,'0')}:00`;scene?.setTime(hour);};
 render();
 try {
