@@ -35,7 +35,7 @@ export function createCityBackdrop(scene) {
   for (let gx = -6; gx <= 6; gx++) {
     for (let gz = -6; gz <= 3; gz++) {
       const x = gx * 5.2, z = gz * 5.2;
-      if (Math.hypot(x, z) < 17 || Math.hypot(x, z) > 35 || z > 8) continue;
+      if (Math.hypot(x, z) < 21 || Math.hypot(x, z) > 35 || z > 8) continue;
       block(0xb6c3a3, x, -0.18, z, 5.2, 0.55, 5.2);
       block(0xd6d7c7, x, 0.11, z, 4.48, 0.05, 4.48);
       block(0x89958f, x - 2.4, 0.105, z, 0.38, 0.035, 5.2);
