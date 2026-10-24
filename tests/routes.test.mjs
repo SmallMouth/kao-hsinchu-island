@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { buildWalkGraph, routeBetween, sampleRoute, redirectRoute } from '../src/route-logic.js';
 import {createCityLife,normalizeAvatar,DEFAULT_AVATAR,FLOWS} from '../src/city-life.js';
-const positions=[[-1,-1],[0,-1],[1,-1],[-2,0],[-1,0],[0,0],[1,0],[-2,1],[-1,1],[0,1],[-1,2],[0,2]].map(([q,r])=>[4.45*q+2.225*r+1.1,0,3.86*r-1.8]);
+import { ISLAND_POSITIONS as positions } from '../src/island-layout.js';
 const categories=positions.map((_,i)=>({id:`c${i+1}`,title:`主題${i+1}`}));
 const graph=buildWalkGraph(positions,categories.map(c=>c.id));
 const equalPoint=(a,b)=>a.forEach((value,index)=>assert.ok(Math.abs(value-b[index])<1e-9));
@@ -53,4 +53,16 @@ test('flow hiding removes selected lines and photo pose waits for arrival',()=>{
   city.poseAvatar({categoryId:'c2',pose:'wave',yaw:1});assert.equal(city.getSnapshot().avatar.pose,null);
   for(let i=0;i<3000&&city.getSnapshot().avatar.state!=='idle';i++)city.update(.1);
   assert.equal(city.getSnapshot().avatar.pose,'wave');city.moveAvatar('c1');assert.equal(city.getSnapshot().avatar.pose,null);city.dispose();
+});
+
+test('expanded island layout keeps perimeter paths on land and all islands reachable',()=>{
+  const radius = 2.49 * 1.3;
+  for (const [index, center] of positions.entries()) {
+    const ring = graph.nodes.slice(index * 12, index * 12 + 12);
+    for (const node of ring) {
+      const x = node.point[0] - center[0], z = node.point[2] - center[2];
+      assert.ok(Math.hypot(x, z) + 0.11 < radius * Math.cos(Math.PI / 6));
+    }
+    for (const target of categories) assert.ok(routeBetween(graph, categories[index].id, target.id).points.length > 0);
+  }
 });
