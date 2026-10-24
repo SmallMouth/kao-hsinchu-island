@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { createCityLife } from './city-life.js';
+import { createCityBackdrop } from './city-backdrop.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
@@ -9,6 +10,8 @@ const COLORS = [0xd9ae67, 0xe5a79d, 0x95b6b1, 0xdab46e, 0x9bafcd, 0x80aaa7, 0xa2
 /** Build an illustrative city; island positions do not represent actual geography. */
 export function createIslandScene(container, categories, onSelect) {
   const scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0xb8cfca, 48, 115);
+  const backdrop = createCityBackdrop(scene);
   let following = null, pickMode = false, photoMode = false;
   let showLabels = true, showFlows = false, showCarry = true;
   let life;
@@ -51,7 +54,7 @@ export function createIslandScene(container, categories, onSelect) {
   const labels = new CSS2DRenderer();
   Object.assign(labels.domElement.style, { position: 'absolute', inset: '0', pointerEvents: 'none', overflow: 'hidden' });
   container.append(labels.domElement);
-  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 160);
+  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 220);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enablePan = false;
   controls.minPolarAngle = 0.08;
@@ -557,6 +560,7 @@ export function createIslandScene(container, categories, onSelect) {
     dispose() {
       disposed = true;
       life.dispose();
+      backdrop.dispose();
       document.body.classList.remove('following-person', 'photo-mode');
       cancelAnimationFrame(frame);
       observer.disconnect();
