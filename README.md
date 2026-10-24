@@ -9,7 +9,7 @@ npm ci
 npm run dev
 ```
 
-開啟終端顯示的本機網址。正式靜態輸出使用 `npm run build`，結果在 `dist/`；可用 `npm run preview` 檢查。未設定或執行外部部署。
+開啟終端顯示的本機網址。正式靜態輸出使用 `npm run build`，結果在 `dist/`；可用 `npm run preview` 檢查。
 
 ## 驗證
 
@@ -35,3 +35,9 @@ Playwright 預設使用 macOS 已安裝的 Google Chrome；其他平台可設定
 ## 分支
 
 `develop` 為開發整合分支。功能分支從 `develop` 建立，完成後以 PR 合併回 `develop`。
+
+## GitHub Pages
+
+網站：https://smallmouth.github.io/kao-hsinchu-island/
+
+合併到 `main` 後，GitHub Actions 會安裝依賴、執行單元測試及建置，再將 `dist/` 部署至 GitHub Pages。建置時從 Pages 設定取得 base path，確保專案子路徑下的資源正常載入。`develop` 與功能分支不會部署。
