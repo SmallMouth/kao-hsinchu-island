@@ -1,3 +1,4 @@
+import { sampleTreeWind, WIND_DIRECTION } from './wind.js';
 import * as THREE from 'three';
 
 /** A stylized urban shoreline, not a reconstruction of geographic coordinates. */
@@ -19,7 +20,11 @@ export function createCityBackdrop(scene) {
   const greens = [0x6e9471, 0x80a080, 0x9aaf82];
   function tree(x, z, scale = 1) {
     block(0x8c8975, x, 0.1 + scale * 0.3, z, 0.08, scale * 0.6, 0.08);
-    add('crown', greens[Math.floor(random() * greens.length)], x, 0.15 + scale * 0.8, z, scale * 0.5, scale * 0.65, scale * 0.5);
+    const phase = random() * Math.PI * 2;
+    for (let i = 0; i < 3; i++) {
+      const angle = phase + i * Math.PI * 2 / 3;
+      add('crown', greens[i], x + Math.cos(angle) * scale * 0.2, 0.15 + scale * (0.7 + i * 0.18), z + Math.sin(angle) * scale * 0.2, scale * 0.36, scale * 0.43, scale * 0.32);
+    }
   }
   function building(x, z, w, d, h, glass = false) {
     const color = glass ? 0x799ca5 : [0xe3e5da, 0xf1ede1, 0xd6ddda][Math.floor(random() * 3)];
@@ -77,6 +82,7 @@ export function createCityBackdrop(scene) {
   }
   const matrix = new THREE.Object3D();
   const resources = [];
+  const windBatches = [];
   for (const { shape, color, items } of batches.values()) {
     const material = new THREE.MeshStandardMaterial({ color, roughness: 0.95 });
     const mesh = new THREE.InstancedMesh(shape === 'box' ? box : crown, material, items.length);
@@ -91,8 +97,26 @@ export function createCityBackdrop(scene) {
     mesh.computeBoundingSphere();
     group.add(mesh);
     resources.push(mesh);
+    if (shape === 'crown' && greens.includes(color)) {
+      mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      mesh.boundingSphere.radius += 1;
+      windBatches.push({ mesh, items });
+    }
   }
   return {
+    updateWind(time) {
+      windBatches.forEach(({ mesh, items }) => {
+        items.forEach((item, index) => {
+          const motion = sampleTreeWind(time, item.x, item.z);
+          const sway = motion.trunk + motion.crown;
+          matrix.position.set(item.x + sway * item.y * WIND_DIRECTION.x, item.y, item.z + sway * item.y * WIND_DIRECTION.z);
+          matrix.scale.set(item.w, item.h, item.d);
+          matrix.rotation.set(sway * WIND_DIRECTION.z, item.yaw, -sway * WIND_DIRECTION.x);
+          matrix.updateMatrix(); mesh.setMatrixAt(index, matrix.matrix);
+        });
+        mesh.instanceMatrix.needsUpdate = true;
+      });
+    },
     dispose() {
       scene.remove(group);
       resources.forEach(mesh => { mesh.dispose(); mesh.material.dispose(); });

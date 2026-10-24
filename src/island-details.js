@@ -1,5 +1,6 @@
 /** Add small thematic scenes inside the expanded perimeter walkway. */
 export function addIslandDetails(index, group, { box, mesh, cylinder, sphere, cone, tree, building, accent }) {
+  if (index === 7) return;
   const cream = 0xf1e7d2, timber = 0xaf9069, green = 0x87a17b;
   const planter = (x, z) => {
     box(group, 0xd1b796, x, 0.54, z, 0.44, 0.2, 0.32);
@@ -51,10 +52,6 @@ export function addIslandDetails(index, group, { box, mesh, cylinder, sphere, co
     box(group, accent, 0, 1.18, -1.95, 1.7, 0.09, 0.65);
     for (const x of [-0.7, 0.7]) box(group, 0x627e77, x, 0.84, -1.95, 0.06, 0.65, 0.06);
     for (let i = 0; i < 4; i++) box(group, cream, -2.1, 0.47, -0.6 + i * 0.35, 0.55, 0.02, 0.12);
-  } else if (index === 7) {
-    box(group, timber, 0, 0.55, -1.95, 1.35, 0.15, 0.55);
-    for (let i = 0; i < 5; i++) box(group, cream, -0.5 + i * 0.25, 0.64, -1.95, 0.035, 0.02, 0.5);
-    for (const z of [-0.65, 0, 0.65]) tree(group, -2.05, z, 0.6);
   } else if (index === 8) {
     for (const x of [-0.5, 0.5]) {
       box(group, timber, x, 0.7, -1.95, 0.7, 0.5, 0.5);

@@ -1,3 +1,6 @@
+import { sampleTreeWind, WIND_DIRECTION } from './wind.js';
+import { createRiverWeather } from './river-weather.js';
+import { addBaseballStadium } from './baseball-stadium.js';
 import { addIslandDetails } from './island-details.js';
 import { ISLAND_SCALE, ISLAND_POSITIONS, NEIGHBOR_DISTANCE } from './island-layout.js';
 import * as THREE from 'three';
@@ -101,10 +104,32 @@ export function createIslandScene(container, categories, onSelect) {
   const box = (p, c, x, y, z, w, h, d, extra) => mesh(p, cube, c, x, y, z, w, h, d, extra);
   const grass = 0xb9c69b, cream = 0xf3e8d6, roof = 0xb16e55, ink = 0x52696b;
   const groundY = 0.43;
+  const windTrees = [];
   function tree(parent, x, z, scale = 1) {
-    mesh(parent, cylinder, 0x99846a, x, groundY + 0.3 * scale, z, 0.07 * scale, 0.6 * scale, 0.07 * scale);
-    mesh(parent, sphere, 0x829f70, x, groundY + 0.78 * scale, z, 0.39 * scale, 0.58 * scale, 0.39 * scale);
+    const pivot = new THREE.Group();
+    pivot.position.set(x, groundY, z);
+    parent.add(pivot);
+    mesh(pivot, cylinder, 0x99846a, 0, 0.25 * scale, 0, 0.055 * scale, 0.5 * scale, 0.055 * scale);
+    const upper = new THREE.Group();
+    upper.position.y = 0.48 * scale;
+    pivot.add(upper);
+    mesh(upper, cylinder, 0x99846a, 0, 0.24 * scale, 0, 0.04 * scale, 0.5 * scale, 0.04 * scale);
+    const branches = [];
+    for (let i = 0; i < 3; i++) {
+      const branch = new THREE.Group();
+      const angle = i * Math.PI * 2 / 3;
+      branch.position.set(0, (0.18 + i * 0.12) * scale, 0);
+      upper.add(branch);
+      const dx = Math.cos(angle) * 0.23 * scale, dz = Math.sin(angle) * 0.23 * scale;
+      const twig = mesh(branch, cylinder, 0x8b8065, dx * 0.5, 0.12 * scale, dz * 0.5, 0.025 * scale, 0.34 * scale, 0.025 * scale);
+      twig.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(dx, 0.24 * scale, dz).normalize());
+      mesh(branch, sphere, [0x729761, 0x8caa73, 0xa3b982][i], dx, 0.28 * scale, dz, 0.31 * scale, 0.36 * scale, 0.27 * scale);
+      branches.push(branch);
+    }
+    mesh(upper, sphere, 0x8ba971, 0, 0.75 * scale, 0, 0.25 * scale, 0.34 * scale, 0.23 * scale);
+    windTrees.push({ pivot, upper, branches, x: x + parent.position.x, z: z + parent.position.z });
   }
+
   function building(parent, x, z, w, d, h, color = cream, top = roof) {
     box(parent, color, x, groundY + h / 2, z, w, h, d);
     box(parent, top, x, groundY + h + 0.09, z, w + 0.12, 0.18, d + 0.12);
@@ -170,8 +195,10 @@ export function createIslandScene(container, categories, onSelect) {
     const curb = mesh(group, hex, 0xe6ddc4, 0, 0.24, 0, 2.56 * ISLAND_SCALE, 0.09, 2.56 * ISLAND_SCALE);
     curb.rotation.y = Math.PI / 6;
     const accent = COLORS[index % COLORS.length];
-    box(group, 0xe1dcc8, 0, 0.435, 0.05, 4.8, 0.035, 0.32);
-    box(group, 0xe1dcc8, -0.15, 0.44, 0, 0.3, 0.035, 4.6);
+    if (index !== 7) {
+      box(group, 0xe1dcc8, 0, 0.435, 0.05, 4.8, 0.035, 0.32);
+      box(group, 0xe1dcc8, -0.15, 0.44, 0, 0.3, 0.035, 4.6);
+    }
     if (index === 0) {
       building(group, 0, -0.65, 2, 0.95, 1.45, cream, accent);
       for (const x of [-0.65, -0.2, 0.25, 0.7]) box(group, 0xfaf1db, x, 1.05, -0.11, 0.15, 1.05, 0.2);
@@ -211,10 +238,7 @@ export function createIslandScene(container, categories, onSelect) {
       car(group, -0.9, 0.6, 0xe8eeea, Math.PI / 2);
       for (let j = 0; j < 5; j++) mesh(group, cylinder, ink, -1 + j * 0.35, 0.65, 1.4, 0.035, 0.4, 0.035);
     } else if (index === 7) {
-      const pond = mesh(group, cylinder, 0x82b6b4, 0, 0.46, 0, 1, 0.04, 0.72);
-      pond.rotation.y = 0.3;
-      for (let j = 0; j < 5; j++) tree(group, Math.cos(j * 1.4) * 1.4, Math.sin(j * 1.4) * 1.4, 0.8 + j * 0.08);
-      box(group, 0xc9a271, 0.5, 0.63, 1.35, 0.7, 0.12, 0.2);
+      addBaseballStadium(group, { box, mesh, cylinder, geometry });
     } else if (index === 8) {
       for (let j = 0; j < 3; j++) {
         building(group, -0.95 + j * 0.9, -0.65, 0.74, 0.85, 0.85, cream, j % 2 ? 0x8ca293 : accent);
@@ -253,12 +277,14 @@ export function createIslandScene(container, categories, onSelect) {
       box(group, 0xbdac83, -0.7, 0.58, 0.9, 0.8, 0.3, 0.55);
       for (let j = 0; j < 3; j++) mesh(group, cone, 0xd39a66, 0.5 + j * 0.35, 0.6, 1.15, 0.1, 0.32, 0.1);
     }
-    for (const [x, z, s] of [[-1.7, 0.6, 0.85], [1.6, -0.5, 0.85], [1.25, 1.35, 0.65]]) tree(group, x, z, s);
-    lamp(group, -1.45, -1.15);
-    lamp(group, 1.2, 0.3);
+    if (index !== 7) {
+      for (const [x, z, s] of [[-1.7, 0.6, 0.85], [1.6, -0.5, 0.85], [1.25, 1.35, 0.65]]) tree(group, x, z, s);
+      lamp(group, -1.45, -1.15);
+      lamp(group, 1.2, 0.3);
 
-    box(group, 0xab8d68, -1.3, 0.64, 1.1, 0.5, 0.09, 0.19);
-    box(group, 0xab8d68, -1.3, 0.8, 1.19, 0.5, 0.24, 0.06);
+      box(group, 0xab8d68, -1.3, 0.64, 1.1, 0.5, 0.09, 0.19);
+      box(group, 0xab8d68, -1.3, 0.8, 1.19, 0.5, 0.24, 0.06);
+    }
     for (let j = 0; j < 6; j++) {
       const a = (j / 6) * Math.PI * 2;
       mesh(group, cylinder, 0xddd6b9, Math.cos(a) * 2.18 * ISLAND_SCALE, 0.59, Math.sin(a) * 2.18 * ISLAND_SCALE, 0.045, 0.32, 0.045);
@@ -282,17 +308,8 @@ export function createIslandScene(container, categories, onSelect) {
     labelButtons.push(button);
   });
 
-  const sea = mesh(scene, cylinder, 0x8ebfc1, 0, -0.65, 0, 34, 0.12, 34);
-  sea.castShadow = false;
-  const seaMat = sea.material;
-  seaMat.roughness = 0.68;
-  for (let i = 0; i < 42; i++) {
-    const angle = i * 2.399;
-    const radius = 16 + (i % 7) * 1.65;
-    const wave = box(scene, 0xc5dcce, Math.cos(angle) * radius, -0.57, Math.sin(angle) * radius, 0.5 + (i % 3) * 0.35, 0.014, 0.035);
-    wave.castShadow = false;
-    wave.rotation.y = -0.2;
-  }
+  const atmosphere = createRiverWeather(scene);
+  let daylightLevel = 1;
   function boat(x, z, color) {
     const boatGroup = new THREE.Group();
     x *= ISLAND_SCALE; z *= ISLAND_SCALE;
@@ -301,14 +318,6 @@ export function createIslandScene(container, categories, onSelect) {
     box(boatGroup, color, 0, 0, 0, 0.42, 0.18, 1.2);
     mesh(boatGroup, cone, color, 0, 0, 0.58, 0.28, 0.45, 0.28).rotation.x = Math.PI / 2;
     box(boatGroup, cream, 0, 0.2, -0.08, 0.32, 0.25, 0.4);
-    box(boatGroup, ink, 0, 0.52, 0.2, 0.025, 0.7, 0.025);
-    const sailGeometry = new THREE.BufferGeometry();
-    sailGeometry.setAttribute('position', new THREE.Float32BufferAttribute([0, 0.83, 0.2, 0, 0.25, 0.2, 0, 0.25, 0.7], 3));
-    sailGeometry.computeVertexNormals();
-    geometry.add(sailGeometry);
-    const sailMaterial = new THREE.MeshStandardMaterial({ color: 0xf6ebd4, side: THREE.DoubleSide, roughness: 1 });
-    materials.set(`sail${x}`, sailMaterial);
-    boatGroup.add(new THREE.Mesh(sailGeometry, sailMaterial));
     moving.push({ object: boatGroup, x, z, phase: x });
   }
   boat(-11, 5, 0xd6a56c);
@@ -487,6 +496,23 @@ export function createIslandScene(container, categories, onSelect) {
     const dt = Math.min((now - last) / 1000 || 0, 0.05);
     last = now;
     life.update(!paused && !document.hidden ? dt : 0);
+    const environmentDt = !paused && !document.hidden ? dt : 0;
+    const cloudCover = atmosphere.update(environmentDt);
+    const windTime = atmosphere.getElapsed();
+    if (environmentDt > 0) {
+      windTrees.forEach(({ pivot, upper, branches, x, z }) => {
+        const motion = sampleTreeWind(windTime, x, z);
+        pivot.rotation.set(motion.trunk * WIND_DIRECTION.z, 0, -motion.trunk * WIND_DIRECTION.x);
+        upper.rotation.set(motion.crown * WIND_DIRECTION.z, 0, -motion.crown * WIND_DIRECTION.x);
+        branches.forEach((branch, i) => {
+          const flutter = motion.flutter * (0.7 + i * 0.25);
+          branch.rotation.set(flutter * WIND_DIRECTION.z, 0, -flutter * WIND_DIRECTION.x);
+        });
+      });
+      backdrop.updateWind(windTime);
+    }
+    sun.intensity = (0.3 + daylightLevel * 3.1) * (1 - cloudCover * 0.32);
+    scene.fog.color.set(0xb8cfca).lerp(new THREE.Color(0xa5b9c2), cloudCover * 0.6);
     if (!paused && !document.hidden) {
       elapsed += dt;
       moving.forEach(({ object, x, z, phase }) => {
@@ -543,10 +569,12 @@ export function createIslandScene(container, categories, onSelect) {
       life.setCarryVisible(showCarry && !photoMode);
       life.setMarkersVisible?.(!photoMode);
     },
+    setWeather(value) { atmosphere.setWeather(value); },
     setTime(hours) {
       const hour = Math.min(24, Math.max(0, Number(hours)));
       if (!Number.isFinite(hour)) return;
       const daylight = Math.max(0, Math.sin((hour - 6) / 12 * Math.PI));
+      daylightLevel = daylight;
       hemisphere.intensity = 0.65 + daylight * 2.15;
       sun.intensity = 0.3 + daylight * 3.1;
       sun.color.set(daylight < 0.5 ? 0xf1bc89 : 0xfff1d6);
@@ -566,6 +594,7 @@ export function createIslandScene(container, categories, onSelect) {
       disposed = true;
       life.dispose();
       backdrop.dispose();
+      atmosphere.dispose();
       document.body.classList.remove('following-person', 'photo-mode');
       cancelAnimationFrame(frame);
       observer.disconnect();
