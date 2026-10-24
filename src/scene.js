@@ -1,3 +1,5 @@
+import { addIslandDetails } from './island-details.js';
+import { ISLAND_SCALE, ISLAND_POSITIONS, NEIGHBOR_DISTANCE } from './island-layout.js';
 import * as THREE from 'three';
 import { createCityLife } from './city-life.js';
 import { createCityBackdrop } from './city-backdrop.js';
@@ -137,7 +139,7 @@ export function createIslandScene(container, categories, onSelect) {
     box(parent, 0xffe5af, x, 1.52, z, 0.17, 0.13, 0.17, 'window');
     box(parent, 0x6e7974, x, 1.61, z, 0.22, 0.05, 0.22);
   }
-  const positions = [[-1, -1], [0, -1], [1, -1], [-2, 0], [-1, 0], [0, 0], [1, 0], [-2, 1], [-1, 1], [0, 1], [-1, 2], [0, 2]].map(([q, r]) => new THREE.Vector3(4.45 * q + 2.225 * r + 1.1, 0, 3.86 * r - 1.8));
+  const positions = ISLAND_POSITIONS.map(p => new THREE.Vector3(...p));
   const islandGroups = new Map();
   const labelButtons = [];
   const pickables = [];
@@ -146,7 +148,7 @@ export function createIslandScene(container, categories, onSelect) {
   scene.add(roads);
   positions.forEach((p, i) => positions.slice(i + 1).forEach(other => {
     const distance = p.distanceTo(other);
-    if (distance > 4.6) return;
+    if (distance > NEIGHBOR_DISTANCE) return;
     const mid = p.clone().add(other).multiplyScalar(0.5);
     const road = box(roads, 0xd3cfbd, mid.x, 0.39, mid.z, 0.48, 0.15, distance);
     road.rotation.y = Math.atan2(other.x - p.x, other.z - p.z);
@@ -161,15 +163,15 @@ export function createIslandScene(container, categories, onSelect) {
     group.userData.categoryId = category.id;
     scene.add(group);
     islandGroups.set(category.id, group);
-    const base = mesh(group, hex, 0xd5c3a2, 0, -0.05, 0, 2.54, 0.78, 2.54);
+    const base = mesh(group, hex, 0xd5c3a2, 0, -0.05, 0, 2.54 * ISLAND_SCALE, 0.78, 2.54 * ISLAND_SCALE);
     base.rotation.y = Math.PI / 6;
-    const lawn = mesh(group, hex, index === 11 ? 0xc5c2a5 : grass, 0, 0.35, 0, 2.49, 0.13, 2.49);
+    const lawn = mesh(group, hex, index === 11 ? 0xc5c2a5 : grass, 0, 0.35, 0, 2.49 * ISLAND_SCALE, 0.13, 2.49 * ISLAND_SCALE);
     lawn.rotation.y = Math.PI / 6;
-    const curb = mesh(group, hex, 0xe6ddc4, 0, 0.24, 0, 2.56, 0.09, 2.56);
+    const curb = mesh(group, hex, 0xe6ddc4, 0, 0.24, 0, 2.56 * ISLAND_SCALE, 0.09, 2.56 * ISLAND_SCALE);
     curb.rotation.y = Math.PI / 6;
     const accent = COLORS[index % COLORS.length];
-    box(group, 0xe1dcc8, 0, 0.435, 0.05, 3.65, 0.035, 0.32);
-    box(group, 0xe1dcc8, -0.15, 0.44, 0, 0.3, 0.035, 3.5);
+    box(group, 0xe1dcc8, 0, 0.435, 0.05, 4.8, 0.035, 0.32);
+    box(group, 0xe1dcc8, -0.15, 0.44, 0, 0.3, 0.035, 4.6);
     if (index === 0) {
       building(group, 0, -0.65, 2, 0.95, 1.45, cream, accent);
       for (const x of [-0.65, -0.2, 0.25, 0.7]) box(group, 0xfaf1db, x, 1.05, -0.11, 0.15, 1.05, 0.2);
@@ -259,8 +261,10 @@ export function createIslandScene(container, categories, onSelect) {
     box(group, 0xab8d68, -1.3, 0.8, 1.19, 0.5, 0.24, 0.06);
     for (let j = 0; j < 6; j++) {
       const a = (j / 6) * Math.PI * 2;
-      mesh(group, cylinder, 0xddd6b9, Math.cos(a) * 2.18, 0.59, Math.sin(a) * 2.18, 0.045, 0.32, 0.045);
+      mesh(group, cylinder, 0xddd6b9, Math.cos(a) * 2.18 * ISLAND_SCALE, 0.59, Math.sin(a) * 2.18 * ISLAND_SCALE, 0.045, 0.32, 0.045);
     }
+    addIslandDetails(index, group, { box, mesh, cylinder, sphere, cone, tree, building, accent });
+
     // The category ID is inherited by every pickable mesh via its parent.
     group.traverse(o => { if (o.isMesh) pickables.push(o); });
     const button = document.createElement('button');
@@ -273,24 +277,25 @@ export function createIslandScene(container, categories, onSelect) {
     button.innerHTML = `<span>${SHORT_NAMES[index] || category.title}</span><small>${category.items.length}</small>`;
     button.addEventListener('click', () => chooseCategory(category.id));
     const label = new CSS2DObject(button);
-    label.position.set(0, 0.75, 1.8);
+    label.position.set(0, 0.75, 2.45);
     group.add(label);
     labelButtons.push(button);
   });
 
-  const sea = mesh(scene, cylinder, 0x8ebfc1, 0, -0.65, 0, 28, 0.12, 28);
+  const sea = mesh(scene, cylinder, 0x8ebfc1, 0, -0.65, 0, 34, 0.12, 34);
   sea.castShadow = false;
   const seaMat = sea.material;
   seaMat.roughness = 0.68;
   for (let i = 0; i < 42; i++) {
     const angle = i * 2.399;
-    const radius = 12 + (i % 7) * 1.65;
+    const radius = 16 + (i % 7) * 1.65;
     const wave = box(scene, 0xc5dcce, Math.cos(angle) * radius, -0.57, Math.sin(angle) * radius, 0.5 + (i % 3) * 0.35, 0.014, 0.035);
     wave.castShadow = false;
     wave.rotation.y = -0.2;
   }
   function boat(x, z, color) {
     const boatGroup = new THREE.Group();
+    x *= ISLAND_SCALE; z *= ISLAND_SCALE;
     boatGroup.position.set(x, -0.35, z);
     scene.add(boatGroup);
     box(boatGroup, color, 0, 0, 0, 0.42, 0.18, 1.2);
@@ -309,7 +314,7 @@ export function createIslandScene(container, categories, onSelect) {
   boat(-11, 5, 0xd6a56c);
   boat(10, 0, 0xbb8067);
   boat(4, 11, 0x789d97);
-  for (const [x, z] of [[-12, -7], [11, 7], [-6, 12]]) {
+  for (const [x, z] of [[-12, -7], [11, 7], [-6, 12]].map(p => p.map(v => v * ISLAND_SCALE))) {
     mesh(scene, cylinder, 0xd7c9a5, x, -0.42, z, 1.3, 0.4, 0.85);
     const islet = new THREE.Group();
     islet.position.set(x, -0.5, z);
@@ -343,7 +348,7 @@ export function createIslandScene(container, categories, onSelect) {
   const overviewTarget = () => isNarrow() ? cityBounds.getCenter(new THREE.Vector3()) : center.clone();
   function overviewPosition() {
     if (!isNarrow()) {
-      const distance = width / height < 1 ? 41 : 32;
+      const distance = width / height < 1 ? 49 : 39;
       return topView ? new THREE.Vector3(0, distance, 0.71) : new THREE.Vector3(distance * 0.45, distance * 0.72, distance * 0.8);
     }
     // Fit the actual island bounds into the space between the intro and controls.
@@ -389,7 +394,7 @@ export function createIslandScene(container, categories, onSelect) {
     labelButtons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.category === id)));
     if (!id || !islandGroups.has(id)) { reset(); return; }
     const target = islandGroups.get(id).position.clone().add(new THREE.Vector3(0, 0.9, 0));
-    const offset = topView ? new THREE.Vector3(0, 18, 1.46) : new THREE.Vector3(8, 12, 13);
+    const offset = topView ? new THREE.Vector3(0, 18, 1.46) : new THREE.Vector3(9, 14, 15);
     if (isNarrow()) offset.multiplyScalar(1.55);
     moveTo(target.clone().add(offset), target);
   }

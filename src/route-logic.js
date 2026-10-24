@@ -1,3 +1,5 @@
+import { WALK_RADIUS, NEIGHBOR_DISTANCE } from './island-layout.js';
+
 const distance = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 
 /** Build perimeter paths and only connect adjacent islands across their shared bridge. */
@@ -9,7 +11,7 @@ export function buildWalkGraph(positions, ids) {
     const base = nodes.length;
     for (let k = 0; k < 12; k++) {
       const angle = k * Math.PI / 6;
-      nodes.push({id:nodes.length,island:ids[index],point:[p[0]+2.05*Math.cos(angle),0.51,p[2]+2.05*Math.sin(angle)]});
+      nodes.push({id:nodes.length,island:ids[index],point:[p[0]+WALK_RADIUS*Math.cos(angle),0.51,p[2]+WALK_RADIUS*Math.sin(angle)]});
       edges.push([]);
     }
     for (let k=0;k<12;k++) link(base+k,base+(k+1)%12);
@@ -17,7 +19,7 @@ export function buildWalkGraph(positions, ids) {
   });
   positions.forEach((p,i)=>positions.slice(i+1).forEach((q,offset)=>{
     const j=i+offset+1, a=Array.isArray(p)?p:[p.x,p.y,p.z], b=Array.isArray(q)?q:[q.x,q.y,q.z];
-    if(distance(a,b)>4.6) return;
+    if(distance(a,b)>NEIGHBOR_DISTANCE) return;
     const direction=Math.atan2(b[2]-a[2],b[0]-a[0]);
     const k=((Math.round(direction/(Math.PI/6))%12)+12)%12;
     link(i*12+k,j*12+(k+6)%12);
