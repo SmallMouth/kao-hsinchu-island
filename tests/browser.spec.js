@@ -5,7 +5,7 @@ test('desktop city, content search, filters and source cautions', async ({ page 
   page.on('pageerror',error=>errors.push(error.message));
   await page.setViewportSize({ width:1440,height:1000 });
   await page.goto('/');
-  await expect(page.locator('.island-label')).toHaveCount(12);
+  await expect(page.locator('.island-label')).toHaveCount(13);
   await expect(page.locator('#stage canvas')).toBeVisible();
   await page.locator('[data-category="c1"].category-toggle').click();
   await expect(page.locator('#items-c1 .item')).toHaveCount(3);
@@ -26,7 +26,7 @@ test('desktop city, content search, filters and source cautions', async ({ page 
   await page.locator('#search').fill('不存在的搜尋項目XYZ');
   await expect(page.locator('.empty')).toBeVisible();
   await page.locator('#clear-search').click();
-  await expect(page.locator('.category')).toHaveCount(12);
+  await expect(page.locator('.category')).toHaveCount(13);
   await page.locator('#labels').click();
   await expect(page.locator('.island-label').first()).toBeHidden();
   await page.locator('#labels').click();
@@ -42,7 +42,7 @@ test('desktop city, content search, filters and source cautions', async ({ page 
 test('mobile list, selection and dialog are reachable without overflow', async ({ page }) => {
   await page.setViewportSize({ width:390,height:844 });
   await page.goto('/');
-  await expect(page.locator('.island-label')).toHaveCount(12);
+  await expect(page.locator('.island-label')).toHaveCount(13);
   await expect(page.locator('#sidebar')).toHaveAttribute('inert','');
   await expect.poll(async () => page.locator('.island-label').evaluateAll(nodes => nodes.every(node => {const r=node.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.top > 300 && r.bottom < 700;}))).toBeTruthy();
   await page.locator('#open-index').click();
