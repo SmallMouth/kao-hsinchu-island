@@ -1,3 +1,4 @@
+import { addSchoolCampus } from './school-campus.js';
 import { sampleTreeWind, WIND_DIRECTION } from './wind.js';
 import { createRiverWeather } from './river-weather.js';
 import { addBaseballStadium } from './baseball-stadium.js';
@@ -9,8 +10,8 @@ import { createCityBackdrop } from './city-backdrop.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
-const SHORT_NAMES = ['財政民生', '育兒家庭', '敬老健康', '教育校園', '青年發展', '交通運輸', '數位市政', '環境休閒', '市場產業', '城市安全', '文化觀光', '推動中'];
-const COLORS = [0xd9ae67, 0xe5a79d, 0x95b6b1, 0xdab46e, 0x9bafcd, 0x80aaa7, 0xa2afc4, 0x8ba77d, 0xcb9c7b, 0xd28d7d, 0xc5afa0, 0xb3b1a0];
+const SHORT_NAMES = ['財政民生', '育兒家庭', '敬老健康', '教育校園', '青年發展', '交通運輸', '數位市政', '環境休閒', '市場產業', '城市安全', '文化觀光', '推動中', '通學步道'];
+const COLORS = [0xd9ae67, 0xe5a79d, 0x95b6b1, 0xdab46e, 0x9bafcd, 0x80aaa7, 0xa2afc4, 0x8ba77d, 0xcb9c7b, 0xd28d7d, 0xc5afa0, 0xb3b1a0, 0x739b95];
 
 /** Build an illustrative city; island positions do not represent actual geography. */
 export function createIslandScene(container, categories, onSelect) {
@@ -195,7 +196,7 @@ export function createIslandScene(container, categories, onSelect) {
     const curb = mesh(group, hex, 0xe6ddc4, 0, 0.24, 0, 2.56 * ISLAND_SCALE, 0.09, 2.56 * ISLAND_SCALE);
     curb.rotation.y = Math.PI / 6;
     const accent = COLORS[index % COLORS.length];
-    if (index !== 7) {
+    if (index !== 7 && index !== 12) {
       box(group, 0xe1dcc8, 0, 0.435, 0.05, 4.8, 0.035, 0.32);
       box(group, 0xe1dcc8, -0.15, 0.44, 0, 0.3, 0.035, 4.6);
     }
@@ -267,6 +268,8 @@ export function createIslandScene(container, categories, onSelect) {
       glass.scale.set(0.75, 1.2, 0.75);
       group.add(glass);
       box(group, cream, 1.1, 0.5, 0.9, 0.8, 0.13, 0.8);
+    } else if (index === 12) {
+      addSchoolCampus(group, { box, mesh, cylinder, tree, geometry });
     } else {
       building(group, -0.5, -0.5, 1.2, 1.1, 0.65, 0xc6c1b0, 0xabb2a3);
       const crane = new THREE.Group();
@@ -277,7 +280,7 @@ export function createIslandScene(container, categories, onSelect) {
       box(group, 0xbdac83, -0.7, 0.58, 0.9, 0.8, 0.3, 0.55);
       for (let j = 0; j < 3; j++) mesh(group, cone, 0xd39a66, 0.5 + j * 0.35, 0.6, 1.15, 0.1, 0.32, 0.1);
     }
-    if (index !== 7) {
+    if (index !== 7 && index !== 12) {
       for (const [x, z, s] of [[-1.7, 0.6, 0.85], [1.6, -0.5, 0.85], [1.25, 1.35, 0.65]]) tree(group, x, z, s);
       lamp(group, -1.45, -1.15);
       lamp(group, 1.2, 0.3);
