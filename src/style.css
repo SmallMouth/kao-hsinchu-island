@@ -6,3 +6,5 @@
 @media(max-height:650px) and (min-width:761px){.intro{top:110px}.intro h1{font-size:30px}.intro p,.intro-count{display:none}.scene-caption{display:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 .following-person .intro,.photo-mode .intro,.photo-mode .brand,.photo-mode .scene-caption,.photo-mode .scene-hint{display:none}.photo-mode .scene-controls{opacity:.3}.photo-mode .scene-controls:hover,.photo-mode .scene-controls:focus-within{opacity:1}
+
+.status.completed{background:#dcebe2;color:#35684a}.item-dot.completed{background:#3d8b5e}

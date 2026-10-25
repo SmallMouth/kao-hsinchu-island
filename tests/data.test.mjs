@@ -6,19 +6,19 @@ const data = JSON.parse(await readFile(new URL('../src/data.json', import.meta.u
 const source = await readFile(new URL('../docs/施政成果整理.md', import.meta.url), 'utf8');
 const items = data.categories.flatMap(category => category.items);
 
-test('catalog contains all 90 uniquely numbered entries in the original 12 categories', () => {
-  assert.equal(data.categories.length, 12);
-  assert.equal(new Set(data.categories.map(category => category.id)).size, 12);
-  assert.equal(items.length, 90);
-  assert.deepEqual(items.map(item => item.id).sort((a, b) => a - b), Array.from({ length: 90 }, (_, index) => index + 1));
-  assert.deepEqual(data.categories.map(category => category.items.length), [3, 7, 10, 11, 8, 14, 3, 10, 5, 8, 3, 8]);
+test('catalog contains 117 uniquely numbered entries across 13 categories', () => {
+  assert.equal(data.categories.length, 13);
+  assert.equal(new Set(data.categories.map(category => category.id)).size, 13);
+  assert.equal(items.length, 117);
+  assert.deepEqual(items.map(item => item.id).sort((a, b) => a - b), [...Array.from({ length: 90 }, (_, index) => index + 1), ...Array.from({ length: 27 }, (_, index) => index + 92)]);
+  assert.deepEqual(data.categories.map(category => category.items.length), [3, 7, 10, 11, 8, 14, 3, 10, 5, 8, 3, 8, 27]);
 });
 
 test('only the eight explicitly pending source entries use the pending status', () => {
   assert.deepEqual(items.filter(item => item.status === 'pending').map(item => item.id), [83, 84, 85, 86, 87, 88, 89, 90]);
   assert.equal(items.filter(item => item.status === 'reported').length, 82);
-  assert.ok(items.every(item => ['reported', 'pending'].includes(item.status)));
-  assert.equal(data.categories.at(-1).title, '推動中或尚未實施項目');
+  assert.ok(items.every(item => ['reported', 'pending', 'completed'].includes(item.status)));
+  assert.equal(data.categories[11].title, '推動中或尚未實施項目');
 });
 
 test('category placement, titles and full descriptions preserve the supplied source', () => {
@@ -60,4 +60,15 @@ test('both sides of the two unresolved source discrepancies retain visible revie
   }
   for (const id of [3, 84]) assert.match(items.find(item => item.id === id).note, /棒球場賽事/);
   for (const id of [22, 86]) assert.match(items.find(item => item.id === id).note, /國中乳品補助/);
+});
+
+test('school walkway names preserve the supplemental list and user-confirmed completion', async () => {
+  const source = await readFile(new URL('../docs/通學步道.md', import.meta.url), 'utf8');
+  const names = source.split(/\r?\n/).slice(2, 29);
+  const category = data.categories.find(category => category.id === 'c13');
+  assert.equal(category.title, '通學步道');
+  assert.equal(names.length, 27);
+  assert.deepEqual(category.items.map(item => item.title), names);
+  assert.ok(category.items.every(item => item.status === 'completed' && item.confirmedOn === '2026-10-25' && item.source === '通學步道.md'));
+  assert.equal(items.filter(item => item.status === 'completed').length, 27);
 });
