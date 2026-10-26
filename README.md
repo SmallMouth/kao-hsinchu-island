@@ -9,7 +9,7 @@
 
 網站：https://smallmouth.github.io/kao-hsinchu-island/ （遊戲：https://smallmouth.github.io/kao-hsinchu-island/game/ ）
 
-兩個頁面互相連結：風城島右上角的「▶ 玩《午安新竹》」（手機上是「▶ 遊戲」）進入遊戲；遊戲首頁下方的「← 新竹風城島」回到資料城市。
+兩個頁面互相連結：風城島右上角的「▶ 玩《午安新竹》」（視窗寬度 1150px 以下改在品牌名稱下方，顯示「▶ 遊戲」）進入遊戲；遊戲首頁下方的「← 新竹風城島」回到資料城市。
 
 ![新竹風城島（桌機）](docs/img/island-desktop.jpg)
 
@@ -148,7 +148,7 @@ ART=aoe python3 game/tests/smoke.py    # 用另一組建築造型
 
 ### 修改遊戲
 
-- `game/index.html` 是遊戲唯一的原始檔，直接編輯即可，沒有建置步驟；Vite 建置時原樣複製到 `dist/game/`。
+- `game/index.html` 是遊戲唯一的原始檔，直接編輯即可，沒有建置步驟。它只用內嵌的一般 `<script>` 與 CDN 網址，Vite 建置時輸出的 `dist/game/index.html` 與原檔相同；如果之後加入 `<script type="module">` 或相對路徑的圖片、樣式，Vite 會打包並改寫路徑，遊戲測試（直接開 `file://`）也要跟著調整。
 - 遊戲在執行時從 jsdelivr 載入固定版本的 `three@0.160.0`，與風城島打包的 three 0.180 分開，兩邊互不影響。
 - 規則數值集中在檔案裡的 `RULES` 物件，也可以用 `#debug` 面板即時調整試玩。
 - 最高分與音效設定以 `cc_` 開頭的鍵存在瀏覽器 localStorage，和風城島的 `hsinchu-island-avatar:v1` 不衝突。

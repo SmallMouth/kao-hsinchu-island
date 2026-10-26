@@ -1,5 +1,5 @@
 """數值試算：用 JS 內建的貪婪 AI（同 play.py 策略，反應間隔可調）同步跑多個種子，看各時段需求／產能比、錢、站數、分數。
-用法：python3 tests/balance.py [react_sec] [json_overrides]"""
+用法：python3 game/tests/balance.py [react_sec] [json_overrides]"""
 import subprocess, sys, json
 from playwright.sync_api import sync_playwright
 import os; P = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # game/

@@ -1,4 +1,4 @@
-"""AI 自動示範的端到端檢查：python3 tests/demo.py（RENDERER=2d 跑灰盒）
+"""AI 自動示範的端到端檢查：python3 game/tests/demo.py（RENDERER=2d 跑灰盒）
 (a) 標題點「看 AI 示範」、(b) index.html#demo 直接進入，各在 1440×900 與 390×844 跑完整一局（×4 加速）；
 另跑一次 ×1 的前 40 秒（每 2 秒截圖看游標與字幕），以及連續 3 局的循環（三個種子）。
 檢查：機制清單、分數燈數、console error、水平捲動、字幕空白／停滯、自動下一局、換我玩、結束、localStorage 不被寫。"""

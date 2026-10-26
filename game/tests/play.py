@@ -1,4 +1,4 @@
-"""完整一局自動遊玩測試：python3 tests/play.py  → 三種組合（1440 std / 390 std / 390 relax）"""
+"""完整一局自動遊玩測試：python3 game/tests/play.py  → 三種組合（1440 std / 390 std / 390 relax）"""
 import subprocess, sys, json, time
 from playwright.sync_api import sync_playwright
 import os; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from _r import LA, goto, R as RENDERER

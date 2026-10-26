@@ -1,9 +1,9 @@
-"""棒球場整建主線的實局檢查：python3 tests/stadium_demo.py（RENDERER=2d 跑灰盒）
+"""棒球場整建主線的實局檢查：python3 game/tests/stadium_demo.py（RENDERER=2d 跑灰盒）
 index.html#demo 讓 AI 示範從開局跑到結算（390×844 全程、1440×900 再跑一次），在城市階段 0／1／2、
 藍圖啟動（97%）、完工瞬間（0.3／1.0 秒）、全城亮燈、煙火節、結算各截一張 → shots/stadium-demo-<renderer>-<WxH>-*.png；
 同時記錄進度字、toast、log、AI 字幕中跟棒球場有關的文字，並斷言文案與進度序列。
 另跑一局「完全不操作」的標準局（時間下限 30→60→97、啟動提示、自動完工 toast）。
-python3 tests/stadium_demo.py aoe：世紀帝國組（#demo,aoe）只跑 390×844，斷言維持 97%→100% 與「藍圖／市政廳」文案。"""
+python3 game/tests/stadium_demo.py aoe：世紀帝國組（#demo,aoe）只跑 390×844，斷言維持 97%→100% 與「藍圖／市政廳」文案。"""
 import subprocess, sys, json, time, os
 from playwright.sync_api import sync_playwright
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from _r import LA, R as RENDERER

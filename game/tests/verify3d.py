@@ -1,4 +1,4 @@
-"""3D 換皮自我驗證：python3 tests/verify3d.py [shots|perf|mem|all] [gpu]
+"""3D 換皮自我驗證：python3 game/tests/verify3d.py [shots|perf|mem|all] [gpu]
 shots：1440×900（滑鼠）、390×844、360×640（觸控）各截 標題／開場／修補中／1:40 豪雨／Boss／結算夜景／分享圖 → shots/3d-*.png
 perf ：CPU 降速 4 倍、390×844，開局 30 秒與 Boss 30 秒的平均／p95 幀時間＋renderer.info
 mem  ：連跑 3 局，記錄 renderer.info.memory、DOM 節點數、JS heap

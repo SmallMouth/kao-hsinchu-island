@@ -1,4 +1,4 @@
-"""建築畫風「新竹地標」自我驗證：python3 tests/art.py [catalog|stadium|game|toggle|perf|click|feat|all]
+"""建築畫風「新竹地標」自我驗證：python3 game/tests/art.py [catalog|stadium|game|toggle|perf|click|feat|all]
 catalog：圖鑑（市政府、四色站（照護＝醫療長照中心）、四色加成站、三種房子、棒球場整建 A 損壞／B 整修中／C 收尾／完工）
          1440×900 與 390×844 各截白天（工地三階段＋完工）＋傍晚＋結算夜景 → shots/hc-*.png
 stadium：棒球場特寫 shots/hc-stadium-{desk,top}-{A,B,C,done}.png（desk＝1440×900 遊戲鏡頭；top＝同視窗把鏡頭俯角拉到 82° 的俯視判讀）、
